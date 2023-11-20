@@ -4,20 +4,9 @@ import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
-import { useCallback, useEffect, useState } from 'react';
-import { QrCard } from '@/components/QrCard';
-import { AlertCircle } from 'lucide-react';
-import va from '@vercel/analytics';
-import { PromptSuggestion } from '@/components/PromptSuggestion';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast, Toaster } from 'react-hot-toast';
-
-const promptSuggestions = [
-  'A city view with clouds',
-  'A beautiful glacier',
-  'A forest overlooking a mountain',
-  'A saharan desert',
-];
+import { Toaster } from 'react-hot-toast';
 
 const generateFormSchema = z.object({
   url: z.string().min(1),
@@ -27,11 +16,7 @@ const generateFormSchema = z.object({
 type GenerateFormValues = z.infer<typeof generateFormSchema>;
 
 const Body = ({
-  imageUrl,
-  prompt,
-  redirectUrl,
-  modelLatency,
-  id,
+  
 }: {
   imageUrl?: string;
   prompt?: string;
@@ -39,9 +24,7 @@ const Body = ({
   modelLatency?: number;
   id?: string;
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [submittedURL, setSubmittedURL] = useState<string | null>(null);
+  const [submittedURL] = useState<string | null>(null);
 
   const router = useRouter();
 
