@@ -23,14 +23,6 @@ export default function Hero() {
             >
               Generate your video
             </NavLink>
-            {/* <NavLink
-              target="_blank"
-              href="https://github.com/Nutlope/qrGPT"
-              className="text-gray-700 border hover:bg-gray-50"
-              scroll={false}
-            >
-              Learn more
-            </NavLink> */}
           </div>
           <div className="grid sm:grid-cols-3 grid-cols-2 gap-4 pt-10">
             {heroImages.map((image, idx) => (
