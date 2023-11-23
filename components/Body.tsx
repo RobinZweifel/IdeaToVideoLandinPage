@@ -31,12 +31,6 @@ const Body = ({
   const form = useForm<GenerateFormValues>({
     resolver: zodResolver(generateFormSchema),
     mode: 'onChange',
-
-    // Set default values so that the form inputs are controlled components.
-    defaultValues: {
-      url: '',
-      prompt: '',
-    },
   });
 
   return (
