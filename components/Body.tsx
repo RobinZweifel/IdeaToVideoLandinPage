@@ -1,19 +1,7 @@
 'use client';
 
-import * as z from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Toaster } from 'react-hot-toast';
-
-const generateFormSchema = z.object({
-  url: z.string().min(1),
-  prompt: z.string().min(3).max(160),
-});
-
-type GenerateFormValues = z.infer<typeof generateFormSchema>;
 
 const Body = ({
   
