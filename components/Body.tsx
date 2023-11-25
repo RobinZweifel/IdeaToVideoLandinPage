@@ -1,19 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 
 const Body = () => {
-  // const [submittedURL] = useState<string | null>(null);
-  const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
-  const [text, setText] = useState('');
-  const [color1, setColor1] = useState('#000000'); // Default color black
-  const [color2, setColor2] = useState('#FFFFFF'); // Default color white
+  const [videoIdea, setVideoIdea] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
 
-  const handleSubmit = (e: any) => {
+  const checkVideoStatus = async (requestId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/video-status/${requestId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      if (result.url) {
+        setVideoUrl(result.url);
+      } else {
+        setTimeout(() => checkVideoStatus(requestId), 5000); // Poll every 5 seconds
+      }
+    } catch (error) {
+      console.error('Error checking video status:', error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle the form submission logic here
+
+    if (videoIdea.trim() === '') {
+      alert('Please enter a video idea');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/generate-video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idea: videoIdea }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      checkVideoStatus(result.requestId); // Begin checking for video status
+    } catch (error) {
+      console.error('Error in submitting video idea:', error);
+      alert('Failed to submit video generation request');
+    }
   };
 
   return (
@@ -23,46 +60,25 @@ const Body = () => {
         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 items-start">
           <input 
             type="text"
-            placeholder="Enter title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Video Idea"
+            value={videoIdea}
+            onChange={(e) => setVideoIdea(e.target.value)}
             className="p-2 border rounded w-full"
           />
-          <input 
-            type="text"
-            placeholder="Enter subtitle"
-            value={subtitle}
-            onChange={(e) => setSubtitle(e.target.value)}
-            className="p-2 border rounded w-full"
-          />
-          <textarea 
-            placeholder="Enter text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            className="p-2 border rounded w-full"
-          />
-          <div className="flex items-center gap-2">
-            <input 
-              type="color"
-              value={color1}
-              onChange={(e) => setColor1(e.target.value)}
-              className="w-6 h-6 border rounded"
-            />
-            <span>{color1}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <input 
-              type="color"
-              value={color2}
-              onChange={(e) => setColor2(e.target.value)}
-              className="w-6 h-6 border rounded"
-            />
-            <span>{color2}</span>
-          </div>
           <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 float-left">
             Submit
           </button>
         </form>
+        {videoUrl && (
+          <div>
+            <video width="320" height="240" controls>
+              <source src={videoUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <br />
+            <a href={videoUrl} download="generatedVideo.mp4">Download Video</a>
+          </div>
+        )}
       </div>
       <Toaster />
     </div>
