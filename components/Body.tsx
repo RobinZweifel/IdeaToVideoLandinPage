@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 
@@ -9,33 +8,30 @@ const Body = () => {
   const [loading, setLoading] = useState(false);
   const [videoError, setVideoError] = useState('');
 
-  const checkVideoStatus = async (requestId: any) => {
+  const checkVideoStatus = async (requestId) => {
     try {
-        const response = await fetch(`http://localhost:8080/video-status/${requestId}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-        if (result.url) { 
-            console.log('Video URL:', result.url);
-            setVideoUrl(result.url);
-            setLoading(false);
-            setVideoError('');
-        } else if (result.status === 'Processing') {
-            setTimeout(() => checkVideoStatus(requestId), 5000);
-        } else {
-            console.error('Unexpected response:', result);
-            setLoading(false);
-            setVideoError('Unexpected response from server.');
-        }
-    } catch (error) {
-        console.error('Error checking video status:', error);
+      const response = await fetch(`http://localhost:8080/video-status/${requestId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      if (result.url) { 
+        setVideoUrl(result.url);
         setLoading(false);
-        setVideoError('Error checking video status.');
+        setVideoError('');
+      } else if (result.status === 'Processing') {
+        setTimeout(() => checkVideoStatus(requestId), 5000);
+      } else {
+        setLoading(false);
+        setVideoError('Unexpected response from server.');
+      }
+    } catch (error) {
+      setLoading(false);
+      setVideoError('Error checking video status.');
     }
-};
+  };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setVideoUrl('');
     setLoading(true);
@@ -63,9 +59,8 @@ const Body = () => {
       const result = await response.json();
       checkVideoStatus(result.requestId);
     } catch (error) {
-      console.error('Error in submitting video idea:', error);
-      alert('Failed to submit video generation request');
       setLoading(false);
+      setVideoError('Failed to submit video generation request.');
     }
   };
 
