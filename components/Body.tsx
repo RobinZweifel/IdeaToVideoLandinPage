@@ -9,7 +9,7 @@ const Body = () => {
   const [loading, setLoading] = useState(false);
   const [videoError, setVideoError] = useState('');
 
-  const checkVideoStatus = async (requestId) => {
+  const checkVideoStatus = async (requestId: any) => {
     try {
         const response = await fetch(`http://localhost:8080/video-status/${requestId}`);
         if (!response.ok) {
@@ -35,7 +35,7 @@ const Body = () => {
     }
 };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setVideoUrl('');
     setLoading(true);
