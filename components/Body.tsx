@@ -7,30 +7,39 @@ const Body = () => {
   const [videoIdea, setVideoIdea] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [videoError, setVideoError] = useState('');
 
   const checkVideoStatus = async (requestId) => {
     try {
-      const response = await fetch(`http://localhost:8080/video-status/${requestId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const result = await response.json();
-      if (result.url) {
-        setVideoUrl(result.url);
-        setLoading(false);
-      } else {
-        setTimeout(() => checkVideoStatus(requestId), 5000);
-      }
+        const response = await fetch(`http://localhost:8080/video-status/${requestId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.url) { 
+            console.log('Video URL:', result.url);
+            setVideoUrl(result.url);
+            setLoading(false);
+            setVideoError('');
+        } else if (result.status === 'Processing') {
+            setTimeout(() => checkVideoStatus(requestId), 5000);
+        } else {
+            console.error('Unexpected response:', result);
+            setLoading(false);
+            setVideoError('Unexpected response from server.');
+        }
     } catch (error) {
-      console.error('Error checking video status:', error);
-      setLoading(false);
+        console.error('Error checking video status:', error);
+        setLoading(false);
+        setVideoError('Error checking video status.');
     }
-  };
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setVideoUrl(''); // Reset video URL
-    setLoading(true); // Set loading to true
+    setVideoUrl('');
+    setLoading(true);
+    setVideoError('');
 
     if (videoIdea.trim() === '') {
       alert('Please enter a video idea');
@@ -52,7 +61,7 @@ const Body = () => {
       }
 
       const result = await response.json();
-      checkVideoStatus(result.requestId); // Begin checking for video status
+      checkVideoStatus(result.requestId);
     } catch (error) {
       console.error('Error in submitting video idea:', error);
       alert('Failed to submit video generation request');
@@ -77,6 +86,7 @@ const Body = () => {
           </button>
         </form>
         {loading && <p className="text-center mt-4">Generating video, please wait...</p>}
+        {videoError && <p className="text-red-500 text-center mt-4">{videoError}</p>}
         {videoUrl && (
           <div className="mt-8 text-center">
             <h2 className="text-2xl font-bold mb-4">Generated Video</h2>
